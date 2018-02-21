@@ -16,10 +16,13 @@ public class BoardManager : MonoBehaviour
 
 	public int boardSize = 5;
 
+	public List<AxialHex> hexBoard;
+
 	// Use this for initialization
 	void Start ()
 	{
 		Init();
+		CreateBoard();
 	}
 	
 	// Update is called once per frame
@@ -37,18 +40,35 @@ public class BoardManager : MonoBehaviour
 		spacingHeight = tileHeight;
 	}
 
-	public void GetNeighbours(int x, int y, int direction)
-	{
-		axialDirections[direction]
-	}
-
+	[ContextMenu("Create Board")]
 	public void CreateBoard()
 	{
-		for(int i = 0; i < boardSize; i++)
-		{
-			for(int j = 0; j < i * 6; j++)
-			{
+		//Destroy code here
+		hexBoard.Clear ();
 
+		if (boardSize <= 0)
+		{
+			return;
+		}
+
+		//Center piec
+		hexBoard.Add (new AxialHex (0, 0));
+
+		if (boardSize <= 1)
+		{
+			return;
+		}
+
+		//Ring
+		for (int i = 1; i < boardSize; i++)
+		{
+			for(int dir = 0; dir < 6; dir++)
+			{
+				for (int j = 0; j < i; j++)
+				{
+					hexBoard.Add(hexBoard[hexBoard.Count - 1].GetNeighbour(dir));
+				}
+				dir++;
 			}
 		}
 	}

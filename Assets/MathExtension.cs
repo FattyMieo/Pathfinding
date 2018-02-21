@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class MathExtension
 {
-	public const float sqrt3 = Mathf.Sqrt(3.0f);
+	public static readonly float sqrt3 = Mathf.Sqrt(3.0f);
 }
