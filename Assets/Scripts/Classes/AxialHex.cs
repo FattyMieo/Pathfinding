@@ -1,22 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-[System.Serializable]
+﻿[System.Serializable]
 public class AxialHex
 {
 	private static AxialHex[] directions =
 	{
-		AxialHex.up, AxialHex.up + AxialHex.left, AxialHex.right,
-		AxialHex.up, AxialHex.up + AxialHex.left, AxialHex.left
+		new AxialHex(0,-1), new AxialHex( 1,-1), new AxialHex( 1, 0),
+		new AxialHex(0, 1), new AxialHex(-1, 1), new AxialHex(-1, 0)
 	};
 
 	public static int totalDirections { get { return directions.Length; } }
-
-	public static AxialHex up 		{ get { return new AxialHex ( 0,  1); } }
-	public static AxialHex down 	{ get { return new AxialHex ( 0, -1); } }
-	public static AxialHex left 	{ get { return new AxialHex (-1,  0); } }
-	public static AxialHex right 	{ get { return new AxialHex ( 1,  0); } }
 
 	public static int RoundToDir(int d)
 	{
@@ -70,6 +61,26 @@ public class AxialHex
 		return new AxialHex(self.x / other.x, self.y / other.y);
 	}
 
+	public static AxialHex operator*(AxialHex self, int other)
+	{
+		return new AxialHex(self.x * other, self.y * other);
+	}
+
+	public static AxialHex operator/(AxialHex self, int other)
+	{
+		return new AxialHex(self.x / other, self.y / other);
+	}
+
+	public static AxialHex operator*(int other, AxialHex self)
+	{
+		return self * other;
+	}
+
+	public static AxialHex operator/(int other, AxialHex self)
+	{
+		return self / other;
+	}
+
 	public int x;
 	public int y;
 
@@ -77,5 +88,13 @@ public class AxialHex
 	{
 		this.x = x;
 		this.y = y;
+	}
+}
+
+public static class AxialHexExtension
+{
+	public static AxialHex ToArrayPos(this AxialHex self, int radius)
+	{
+		return new AxialHex(self.x + radius - 1, self.y + radius - 1);
 	}
 }
