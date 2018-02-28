@@ -51,6 +51,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a88760a6e9ccc314da6bd16bb623b483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
+  constantUpdateMode: 0
   tilePrefab: {fileID: 1399752147594594, guid: 75b0f618b2bd0a24a984eb824eec9116, type: 2}
   tileSize: 1
-  boardRadius: 3
+  boardRadius: 5

@@ -3,8 +3,8 @@ public class AxialHex
 {
 	private static AxialHex[] directions =
 	{
-		new AxialHex(0,-1), new AxialHex( 1,-1), new AxialHex( 1, 0),
-		new AxialHex(0, 1), new AxialHex(-1, 1), new AxialHex(-1, 0)
+		new AxialHex( 0,-1), new AxialHex( 1,-1), new AxialHex( 1, 0),
+		new AxialHex( 0, 1), new AxialHex(-1, 1), new AxialHex(-1, 0)
 	};
 
 	public static int totalDirections { get { return directions.Length; } }
