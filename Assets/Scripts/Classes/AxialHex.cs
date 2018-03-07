@@ -1,6 +1,7 @@
 ﻿[System.Serializable]
-public class AxialHex
+public class AxialHex : Tile
 {
+	//Static Variables
 	private static AxialHex[] directions =
 	{
 		new AxialHex( 0,-1), new AxialHex( 1,-1), new AxialHex( 1, 0),
@@ -9,10 +10,14 @@ public class AxialHex
 
 	public static int totalDirections { get { return directions.Length; } }
 
-	public static int RoundToDir(int d)
+	//Constructor
+	public AxialHex(int x, int y) : base(x, y) { }
+
+	//Functions
+	public static int RoundToDir(int dir)
 	{
-		if (d < 0) return totalDirections - (d % totalDirections);
-		return d % totalDirections;
+		if (dir < 0) return totalDirections - (dir % totalDirections);
+		return dir % totalDirections;
 	}
 
 	public static AxialHex GetDirection(int dir)
@@ -34,13 +39,14 @@ public class AxialHex
 	public AxialHex[] GetNeighbours()
 	{
 		AxialHex[] neighDirs = GetDirections();
-		for(int i = 0; i < totalDirections; i++)
+		for(int i = 0; i < neighDirs.Length; i++)
 		{
 			neighDirs[i] += this; //new AxialHex(x + neighDirs[i].x, y + neighDirs[i].y);
 		}
 		return neighDirs;
 	}
 
+	//Operators
 	public static AxialHex operator+(AxialHex self, AxialHex other)
 	{
 		return new AxialHex(self.x + other.x, self.y + other.y);
@@ -79,15 +85,6 @@ public class AxialHex
 	public static AxialHex operator/(int other, AxialHex self)
 	{
 		return self / other;
-	}
-
-	public int x;
-	public int y;
-
-	public AxialHex(int x, int y)
-	{
-		this.x = x;
-		this.y = y;
 	}
 }
 

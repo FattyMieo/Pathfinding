@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TileType
+{
+	Square = 0,
+	Hex,
+
+	Total
+}
+
 public class BoardManager : MonoBehaviour
 {
 	//Singleton
@@ -12,41 +20,90 @@ public class BoardManager : MonoBehaviour
 	}
 
 	//Variables
+	[Header("Connections")]
+	public Transform squareBoardParent;
+	public Transform hexBoardParent;
+
 	[Header("Debug")]
 	public bool debugMode = false;
+	[ContextMenuItem("Update Board", "UpdateBoard")]
 	public bool constantUpdateMode = false;
 
 	[Header("Prefabs")]
-	public GameObject tilePrefab;
+	public GameObject[] tilePrefab;
 
 	[Header("Settings")]
+	public TileType tileType;
 	[Range(0.0f, 3.0f)]
 	public float tileSize = 1.0f;
-
 	[Range(1, 50)]
-	public int boardRadius = 5;
+	public int boardSize = 5;
 
+	private SquareScript[,] squareBoard; //Can be flattened to 1D for easier display
 	private HexScript[,] hexBoard; //Can be flattened to 1D for easier display
 
 	//Getters
 	public float tileWidth
 	{
-		get { return tileSize; }
+		get
+		{
+			switch(tileType)
+			{
+				case TileType.Square:
+					return tileSize;
+				case TileType.Hex:
+					return tileSize;
+			}
+			return tileSize;
+		}
 	}
+
 	public float tileHeight
 	{
-		get { return MathExtension.sqrt3 / 2.0f * tileWidth; }
+		get
+		{
+			switch(tileType)
+			{
+				case TileType.Square:
+					return tileSize;
+				case TileType.Hex:
+					return MathExtension.sqrt3 / 2.0f * tileWidth;
+			}
+			return tileSize;
+		}
 	}
 
 	public float spacingWidth
 	{
-		get { return tileWidth * 3.0f / 4.0f; }
-	}
-	public float spacingHeight
-	{
-		get { return tileHeight; }
+		get
+		{
+			switch(tileType)
+			{
+				case TileType.Square:
+					return tileWidth;
+				case TileType.Hex:
+					return tileWidth * 3.0f / 4.0f;
+			}
+			return tileWidth / 2.0f;
+		}
 	}
 
+	public float spacingHeight
+	{
+		get
+		{
+			switch(tileType)
+			{
+				case TileType.Square:
+					return tileHeight;
+				case TileType.Hex:
+					return tileHeight;
+			}
+			return tileHeight / 2.0f;
+		}
+	}
+
+	//Listeners
 	void Awake()
 	{
 		//Singleton
@@ -58,7 +115,7 @@ public class BoardManager : MonoBehaviour
 
 	void Start ()
 	{
-		CreateBoard(boardRadius);
+		UpdateBoard();
 	}
 
 	void Update ()
@@ -67,7 +124,78 @@ public class BoardManager : MonoBehaviour
 			UpdateBoard();
 	}
 
-	public void CreateBoard(int radius)
+	//Functions
+	public void CreateBoard(int size)
+	{
+		switch(tileType)
+		{
+			case TileType.Square:
+				CreateSquareBoard(size);
+				break;
+			case TileType.Hex:
+				CreateHexBoard(size);
+				break;
+		}
+	}
+
+	public void CreateSquareBoard(int size)
+	{
+		if (size <= 0) return;
+
+		int prevSize = 0; //squareBoard == null _WHEN_ prevRadius <= 0
+
+		if(squareBoard != null)
+			prevSize = squareBoard.GetLength(0);
+
+		if(size < prevSize)
+		{
+			for (int i = 0; i < prevSize; i++)
+			{
+				for (int j = 0; j < prevSize; j++)
+				{
+					if(i >= size || j >= size)
+					{
+						//Destroy
+						if(debugMode) Debug.Log(j + "," + i + " is destroyed");
+						Destroy(squareBoard[i, j].gameObject);
+					}
+				}
+			}
+		}
+
+		SquareScript[,] newSquareBoard = new SquareScript[size, size];
+
+		//Array search
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if(i < prevSize && j < prevSize)
+				{
+					//Migrate
+					newSquareBoard[i, j] = squareBoard[i, j];
+					if(debugMode) Debug.Log("squareBoard[" + i + "," + j + "] can be taken from old array[" + i + "," + j + "]");
+				}
+				else
+				{
+					//Instantiate
+					newSquareBoard[i, j] = Instantiate(tilePrefab[(int)tileType]).GetComponent<SquareScript>();
+					newSquareBoard[i, j].transform.parent = squareBoardParent;
+					if(debugMode) Debug.Log("squareBoard[" + i + "," + j + "] is instantiated");
+				}
+
+				//Set Scale
+				newSquareBoard[i, j].transform.localScale = Vector3.one * tileSize;
+				newSquareBoard[i, j].position = new Square(j, i);
+			}
+		}
+
+		//Save new board
+		squareBoard = newSquareBoard;
+		return;
+	}
+
+	public void CreateHexBoard(int radius)
 	{
 		if (radius <= 0) return;
 
@@ -110,8 +238,8 @@ public class BoardManager : MonoBehaviour
 		else
 		{
 			//Instantiate
-			newHexBoard[0, 0] = Instantiate(tilePrefab).GetComponent<HexScript>();
-			newHexBoard[0, 0].transform.parent = this.transform;
+			newHexBoard[0, 0] = Instantiate(tilePrefab[(int)tileType]).GetComponent<HexScript>();
+			newHexBoard[0, 0].transform.parent = hexBoardParent;
 			newHexBoard[0, 0].position = new AxialHex(0, 0);
 			if(debugMode) Debug.Log("hexBoard[0,0] is instantiated");
 		}
@@ -138,8 +266,8 @@ public class BoardManager : MonoBehaviour
 					else
 					{
 						//Instantiate
-						newHexBoard[arrayPos.y, arrayPos.x] = Instantiate(tilePrefab).GetComponent<HexScript>();
-						newHexBoard[arrayPos.y, arrayPos.x].transform.parent = this.transform;
+						newHexBoard[arrayPos.y, arrayPos.x] = Instantiate(tilePrefab[(int)tileType]).GetComponent<HexScript>();
+						newHexBoard[arrayPos.y, arrayPos.x].transform.parent = hexBoardParent;
 						//newHexBoard[nextHex.ToArrayPos(radius).y, nextHex.ToArrayPos(radius).x].position = new AxialHex(nextHex.y, nextHex.x);
 						if(debugMode) Debug.Log("hexBoard[" + arrayPos.y + "," + arrayPos.x + "] is instantiated");
 					}
@@ -158,9 +286,20 @@ public class BoardManager : MonoBehaviour
 		return;
 	}
 
-	[ContextMenu("Create Board")]
 	public void UpdateBoard()
 	{
-		CreateBoard(boardRadius);
+		CreateBoard(boardSize);
+
+		switch(tileType)
+		{
+			case TileType.Square:
+				squareBoardParent.gameObject.SetActive(true);
+				hexBoardParent.gameObject.SetActive(false);
+				break;
+			case TileType.Hex:
+				hexBoardParent.gameObject.SetActive(true);
+				squareBoardParent.gameObject.SetActive(false);
+				break;
+		}
 	}
 }
