@@ -59,19 +59,22 @@ public static class NDiagonalSquare
 [System.Serializable]
 public class Square : Tile
 {
-	//Variables
-	public bool isDiagonal;
+	//Getters
+	public bool isDiagonal
+	{
+		get { return BoardManager.instance.checkDiagonals; }
+	}
 
 	//Constructors
-	public Square(int x, int y, bool isDiagonal = false) : base(x, y) { this.isDiagonal = isDiagonal; }
+	public Square(int x, int y) : base(x, y) { }
 
 	//Functions
-	public int totalDirections
+	public override int totalDirections
 	{
 		get { return (isDiagonal ? DiagonalSquare.totalDirections : NDiagonalSquare.totalDirections); }
 	}
 
-	public int RoundToDir(int dir)
+	public override int RoundToDir(int dir)
 	{
 		return (isDiagonal ? DiagonalSquare.RoundToDir(dir) : NDiagonalSquare.RoundToDir(dir));
 	}

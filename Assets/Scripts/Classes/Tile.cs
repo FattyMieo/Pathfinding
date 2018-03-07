@@ -8,4 +8,8 @@
 		this.x = x;
 		this.y = y;
 	}
+
+	public abstract int totalDirections { get; }
+
+	public abstract int RoundToDir(int dir);
 }

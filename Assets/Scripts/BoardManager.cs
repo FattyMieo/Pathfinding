@@ -32,12 +32,15 @@ public class BoardManager : MonoBehaviour
 	[Header("Prefabs")]
 	public GameObject[] tilePrefab;
 
-	[Header("Settings")]
+	[Header("Tile Settings")]
 	public TileType tileType;
 	[Range(0.0f, 3.0f)]
 	public float tileSize = 1.0f;
 	[Range(1, 50)]
 	public int boardSize = 5;
+
+	[Header("Pathfinding Settings")]
+	public bool checkDiagonals;
 
 	private SquareScript[,] squareBoard; //Can be flattened to 1D for easier display
 	private HexScript[,] hexBoard; //Can be flattened to 1D for easier display
@@ -208,7 +211,7 @@ public class BoardManager : MonoBehaviour
 		{
 			for (int i = 0; i < prevRadius; i++)
 			{
-				AxialHex nextHex = AxialHex.GetDirection(4) * i;
+				Hex nextHex = AxialHex.GetDirection(4) * i;
 				for(int dir = 0; dir < 6; dir++)
 				{
 					for (int j = 0; j < i; j++)
@@ -240,7 +243,7 @@ public class BoardManager : MonoBehaviour
 			//Instantiate
 			newHexBoard[0, 0] = Instantiate(tilePrefab[(int)tileType]).GetComponent<HexScript>();
 			newHexBoard[0, 0].transform.parent = hexBoardParent;
-			newHexBoard[0, 0].position = new AxialHex(0, 0);
+			newHexBoard[0, 0].position = new Hex(0, 0);
 			if(debugMode) Debug.Log("hexBoard[0,0] is instantiated");
 		}
 		//Set Scale
@@ -249,13 +252,13 @@ public class BoardManager : MonoBehaviour
 		//Ring search
 		for (int i = 1; i < radius; i++)
 		{
-			AxialHex nextHex = AxialHex.GetDirection(4) * i;
+			Hex nextHex = AxialHex.GetDirection(4) * i;
 			for(int dir = 0; dir < 6; dir++)
 			{
 				for (int j = 0; j < i; j++)
 				{
-					AxialHex arrayPos = nextHex.ToArrayPos(radius);
-					AxialHex oldArrayPos = nextHex.ToArrayPos(prevRadius);
+					Hex arrayPos = nextHex.ToArrayPos(radius);
+					Hex oldArrayPos = nextHex.ToArrayPos(prevRadius);
 
 					if(i < prevRadius)
 					{
@@ -274,7 +277,7 @@ public class BoardManager : MonoBehaviour
 
 					//Set Scale
 					newHexBoard[arrayPos.y, arrayPos.x].transform.localScale = Vector3.one * tileSize;
-					newHexBoard[arrayPos.y, arrayPos.x].position = new AxialHex(nextHex.x, nextHex.y);
+					newHexBoard[arrayPos.y, arrayPos.x].position = new Hex(nextHex.x, nextHex.y);
 
 					nextHex = nextHex.GetNeighbour(dir);
 				}

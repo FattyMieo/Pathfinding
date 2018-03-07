@@ -119,3 +119,4 @@ MonoBehaviour:
   tileType: 0
   tileSize: 0.5
   boardSize: 20
+  checkDiagonals: 0
