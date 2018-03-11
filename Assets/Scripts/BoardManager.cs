@@ -20,10 +20,6 @@ public class BoardManager : MonoBehaviour
 	}
 
 	//Variables
-	[Header("Connections")]
-	public Transform squareBoardParent;
-	public Transform hexBoardParent;
-
 	[Header("Debug")]
 	public bool debugMode = false;
 	[ContextMenuItem("Update Board", "UpdateBoard")]
@@ -36,14 +32,37 @@ public class BoardManager : MonoBehaviour
 	public TileType tileType;
 	[Range(0.0f, 3.0f)]
 	public float tileSize = 1.0f;
-	[Range(1, 50)]
-	public int boardSize = 5;
+	[Range(3, 45)]
+	public int _boardSize = 20;
+	public int boardSize
+	{
+		get
+		{
+			if(tileType == TileType.Hex) return Mathf.FloorToInt(_boardSize / 2.0f) + 1;
+			else return _boardSize;
+		}
+	}
 
-	[Header("Pathfinding Settings")]
-	public bool checkDiagonals;
+	public TileScript[,] tileBoard
+	{
+		get
+		{
+			if(tileType == TileType.Square) return squareBoard;
+			else if(tileType == TileType.Hex) return hexBoard;
+			return null;
+		}
+		set
+		{
+			if(tileType == TileType.Square) squareBoard = value;
+			else if(tileType == TileType.Hex) hexBoard = value;
+		}
+	}
+	public TileScript[,] squareBoard;	//Can be flatstened to 1D for easier display
+	public TileScript[,] hexBoard;		//Can be flattened to 1D for easier display
 
-	private SquareScript[,] squareBoard; //Can be flattened to 1D for easier display
-	private HexScript[,] hexBoard; //Can be flattened to 1D for easier display
+	[Header("Editor")]
+	public Transform squareBoardParent;
+	public Transform hexBoardParent;
 
 	//Getters
 	public float tileWidth
@@ -119,12 +138,16 @@ public class BoardManager : MonoBehaviour
 	void Start ()
 	{
 		UpdateBoard();
+		PathfindingManager.instance.InitPoints();
 	}
 
 	void Update ()
 	{
 		if(constantUpdateMode)
+		{
 			UpdateBoard();
+			PathfindingManager.instance.InitPoints();
+		}
 	}
 
 	//Functions
@@ -147,8 +170,8 @@ public class BoardManager : MonoBehaviour
 
 		int prevSize = 0; //squareBoard == null _WHEN_ prevRadius <= 0
 
-		if(squareBoard != null)
-			prevSize = squareBoard.GetLength(0);
+		if(tileBoard != null)
+			prevSize = tileBoard.GetLength(0);
 
 		if(size < prevSize)
 		{
@@ -160,7 +183,7 @@ public class BoardManager : MonoBehaviour
 					{
 						//Destroy
 						if(debugMode) Debug.Log(j + "," + i + " is destroyed");
-						Destroy(squareBoard[i, j].gameObject);
+						Destroy(tileBoard[i, j].gameObject);
 					}
 				}
 			}
@@ -176,7 +199,7 @@ public class BoardManager : MonoBehaviour
 				if(i < prevSize && j < prevSize)
 				{
 					//Migrate
-					newSquareBoard[i, j] = squareBoard[i, j];
+					newSquareBoard[i, j] = (SquareScript)tileBoard[i, j];
 					if(debugMode) Debug.Log("squareBoard[" + i + "," + j + "] can be taken from old array[" + i + "," + j + "]");
 				}
 				else
@@ -190,11 +213,17 @@ public class BoardManager : MonoBehaviour
 				//Set Scale
 				newSquareBoard[i, j].transform.localScale = Vector3.one * tileSize;
 				newSquareBoard[i, j].position = new Square(j, i);
+
+				newSquareBoard[i, j].isChecked = false;
+				newSquareBoard[i, j].isObstacle = false;
+				newSquareBoard[i, j].movementCost = Mathf.Infinity;
+				newSquareBoard[i, j].parentTile = null;
+				newSquareBoard[i, j].state = TileState.Empty;
 			}
 		}
 
 		//Save new board
-		squareBoard = newSquareBoard;
+		tileBoard = newSquareBoard;
 		return;
 	}
 
@@ -204,8 +233,8 @@ public class BoardManager : MonoBehaviour
 
 		int prevRadius = 0; //hexBoard == null _WHEN_ prevRadius <= 0
 
-		if(hexBoard != null)
-			prevRadius = (hexBoard.GetLength(0) - 1) / 2 + 1;
+		if(tileBoard != null)
+			prevRadius = (tileBoard.GetLength(0) - 1) / 2 + 1;
 
 		if(radius < prevRadius)
 		{
@@ -220,7 +249,7 @@ public class BoardManager : MonoBehaviour
 						{
 							//Destroy
 							if(debugMode) Debug.Log(nextHex.ToArrayPos(prevRadius).x + "," + nextHex.ToArrayPos(prevRadius).y + " is destroyed");
-							Destroy(hexBoard[nextHex.ToArrayPos(prevRadius).y, nextHex.ToArrayPos(prevRadius).x].gameObject);
+							Destroy(tileBoard[nextHex.ToArrayPos(prevRadius).y, nextHex.ToArrayPos(prevRadius).x].gameObject);
 
 							nextHex = nextHex.GetNeighbour(dir);
 						}
@@ -235,7 +264,7 @@ public class BoardManager : MonoBehaviour
 		if(0 < prevRadius)
 		{
 			//Migrate
-			newHexBoard[0, 0] = hexBoard[0, 0];
+			newHexBoard[0, 0] = (HexScript)tileBoard[0, 0];
 			if(debugMode) Debug.Log("hexBoard[0,0] can be taken from old array[0,0]");
 		}
 		else
@@ -243,11 +272,18 @@ public class BoardManager : MonoBehaviour
 			//Instantiate
 			newHexBoard[0, 0] = Instantiate(tilePrefab[(int)tileType]).GetComponent<HexScript>();
 			newHexBoard[0, 0].transform.parent = hexBoardParent;
-			newHexBoard[0, 0].position = new Hex(0, 0);
 			if(debugMode) Debug.Log("hexBoard[0,0] is instantiated");
 		}
+
 		//Set Scale
 		newHexBoard[0, 0].transform.localScale = Vector3.one * tileSize;
+		newHexBoard[0, 0].position = new Hex(0, 0);
+
+		newHexBoard[0, 0].isChecked = false;
+		newHexBoard[0, 0].isObstacle = false;
+		newHexBoard[0, 0].movementCost = Mathf.Infinity;
+		newHexBoard[0, 0].parentTile = null;
+		newHexBoard[0, 0].state = TileState.Empty;
 
 		//Ring search
 		for (int i = 1; i < radius; i++)
@@ -263,7 +299,7 @@ public class BoardManager : MonoBehaviour
 					if(i < prevRadius)
 					{
 						//Migrate
-						newHexBoard[arrayPos.y, arrayPos.x] = hexBoard[oldArrayPos.y, oldArrayPos.x];
+						newHexBoard[arrayPos.y, arrayPos.x] = (HexScript)tileBoard[oldArrayPos.y, oldArrayPos.x];
 						if(debugMode) Debug.Log("hexBoard[" + arrayPos.y + "," + arrayPos.x + "] can be taken from old array[" + oldArrayPos.y + "," + oldArrayPos.x + "]");
 					}
 					else
@@ -279,13 +315,19 @@ public class BoardManager : MonoBehaviour
 					newHexBoard[arrayPos.y, arrayPos.x].transform.localScale = Vector3.one * tileSize;
 					newHexBoard[arrayPos.y, arrayPos.x].position = new Hex(nextHex.x, nextHex.y);
 
+					newHexBoard[arrayPos.y, arrayPos.x].isChecked = false;
+					newHexBoard[arrayPos.y, arrayPos.x].isObstacle = false;
+					newHexBoard[arrayPos.y, arrayPos.x].movementCost = Mathf.Infinity;
+					newHexBoard[arrayPos.y, arrayPos.x].parentTile = null;
+					newHexBoard[arrayPos.y, arrayPos.x].state = TileState.Empty;
+
 					nextHex = nextHex.GetNeighbour(dir);
 				}
 			}
 		}
 
 		//Save new board
-		hexBoard = newHexBoard;
+		tileBoard = newHexBoard;
 		return;
 	}
 
@@ -304,5 +346,21 @@ public class BoardManager : MonoBehaviour
 				squareBoardParent.gameObject.SetActive(false);
 				break;
 		}
+	}
+
+	public TileScript GetTile(int x, int y)
+	{
+		if(tileType == TileType.Square)
+		{
+			return tileBoard[y, x];
+		}
+		else if(tileType == TileType.Hex)
+		{
+			Hex h = new Hex(x, y);
+			h = h.ToArrayPos(boardSize);
+			return tileBoard[h.y, h.x];
+		}
+
+		return null;
 	}
 }

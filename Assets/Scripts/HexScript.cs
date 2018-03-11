@@ -2,18 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexScript : TileScript<Hex>
+public class HexScript : TileScript
 {
-	// Use this for initialization
-	private new void Start ()
+	protected Hex _position = new Hex();
+	public Hex position
 	{
-		base.Start();
+		get { return _position; }
+		set
+		{
+			_position = value;
+
+			CalibratePosition();
+
+			x = _position.x;
+			y = _position.y;
+		}
 	}
-	
-	// Update is called once per frame
-	void Update ()
+
+	// Use this for initialization
+	void Awake ()
 	{
-		
+		x = position.x;
+		y = position.y;
 	}
 
 	protected override void CalibratePosition()

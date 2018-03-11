@@ -6,6 +6,12 @@
 		new Hex( 0, 1), new Hex(-1, 1), new Hex(-1, 0)
 	};
 
+	private static float[] cost =
+	{
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f
+	};
+
 	public static int totalDirections { get { return directions.Length; } }
 
 	public static int RoundToDir(int dir)
@@ -16,12 +22,28 @@
 
 	public static Hex GetDirection(int dir)
 	{
-		return directions [RoundToDir(dir)];
+		Hex h = new Hex();
+		h.x = directions [RoundToDir(dir)].x;
+		h.y = directions [RoundToDir(dir)].y;
+		return h;
 	}
 
 	public static Hex[] GetDirections()
 	{
-		return directions;
+		Hex[] h = new Hex[totalDirections];
+		for(int i = 0; i < totalDirections; i++)
+		{
+			h[i] = new Hex();
+			h[i].x = directions[i].x;
+			h[i].y = directions[i].y;
+		}
+		return h;
+	}
+
+	public static float GetCost(int dir)
+	{
+		float c = cost[RoundToDir(dir)];
+		return c;
 	}
 }
 
@@ -30,6 +52,7 @@ public class Hex : Tile
 {
 	//Constructor
 	public Hex(int x, int y) : base(x, y) { }
+	public Hex() : base(0, 0) { }
 
 	//Functions
 	public override int totalDirections
@@ -50,6 +73,11 @@ public class Hex : Tile
 	public Hex[] GetDirections()
 	{
 		return AxialHex.GetDirections();
+	}
+
+	public float GetCost(int dir)
+	{
+		return AxialHex.GetCost(dir);
 	}
 
 	public Hex GetNeighbour(int dir)
@@ -114,6 +142,7 @@ public static class AxialHexExtension
 {
 	public static Hex ToArrayPos(this Hex self, int radius)
 	{
+		if(self.x == 0 && self.y == 0) return self;
 		return new Hex(self.x + radius - 1, self.y + radius - 1);
 	}
 }

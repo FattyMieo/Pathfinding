@@ -35,9 +35,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4689173461321088}
-  - component: {fileID: 114977712215628030}
+  - component: {fileID: 114208905293210626}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Hexagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -65,26 +65,26 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1309547432608498}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.2588191, w: 0.9659258}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.95, y: 0.95, z: 1}
   m_Children: []
   m_Father: {fileID: 4689173461321088}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 30}
 --- !u!4 &4410799924581618
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1701522141195358}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.2588191, w: 0.9659258}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4689173461321088}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 30}
 --- !u!4 &4689173461321088
 Transform:
   m_ObjectHideFlags: 1
@@ -100,7 +100,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114977712215628030
+--- !u!114 &114208905293210626
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -108,11 +108,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1399752147594594}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b2a0d3a6c7f8c04896174b4e01d81de, type: 3}
+  m_Script: {fileID: 11500000, guid: 2a1bc2957e192e74eb663a4b3c64391c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   x: 0
   y: 0
+  isChecked: 0
+  movementCost: 0
+  parentTile: {fileID: 0}
+  state: 0
+  rend: {fileID: 212362555622192884}
 --- !u!212 &212362555622192884
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -147,7 +152,7 @@ SpriteRenderer:
   m_SortingLayerID: 435787547
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: d19bad48de5572a42942c7af914e1bc0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cc51eeebe4c327e42897b87beabf3dc3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -191,7 +196,7 @@ SpriteRenderer:
   m_SortingLayerID: 435787547
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d19bad48de5572a42942c7af914e1bc0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cc51eeebe4c327e42897b87beabf3dc3, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0

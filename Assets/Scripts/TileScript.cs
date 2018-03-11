@@ -2,44 +2,117 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class TileScript<T> : MonoBehaviour where T : Tile
+public enum TileState
 {
-	protected T _position;
-	public T position
-	{
-		get { return _position; }
-		set
-		{
-			_position = value;
+	Empty = 0,	//White
 
-			CalibratePosition();
+	Unchecked,	//Light Blue
+	Checked,	//Orange
+	Path,		//Yellow
 
-			x = _position.x;
-			y = _position.y;
-		}
-	}
+	Origin,			//Red
+	Destination,	//Green
+	Obstacle,		//White
 
+	Total
+}
+
+public abstract class TileScript : MonoBehaviour
+{
 	//Debug
 	[Header("Position")]
 	public int x;
 	public int y;
 
 	[Header("Tile Data")]
-	public bool hasSelected;
-	public int movementCost;
-
-	// Use this for initialization
-	protected void Start ()
+	public bool _isChecked;
+	public bool isChecked
 	{
-		x = position.x;
-		y = position.y;
+		get
+		{
+			if(state != TileState.Origin && state != TileState.Destination && !_isObstacle)
+			{
+				if(_isChecked)
+					state = TileState.Checked;
+				else
+					state = TileState.Unchecked;
+			}
+			return _isChecked; 
+		}
+		set
+		{
+			_isChecked = value;
+			if(state != TileState.Origin && state != TileState.Destination && !_isObstacle)
+			{
+				if(_isChecked)
+					state = TileState.Checked;
+				else
+					state = TileState.Unchecked;
+			}
+		}
 	}
+	public bool _isObstacle;
+	public bool isObstacle
+	{
+		get
+		{
+			if(state != TileState.Origin && state != TileState.Destination)
+			{
+				if(_isObstacle)
+					state = TileState.Obstacle;
+				else
+					state = TileState.Empty;
+			}
+			return _isObstacle; 
+		}
+		set
+		{
+			_isObstacle = value;
+			if(state != TileState.Origin && state != TileState.Destination)
+			{
+				if(_isObstacle)
+					state = TileState.Obstacle;
+				else
+					state = TileState.Empty;
+			}
+		}
+	}
+	public float movementCost;
+	public TileScript parentTile;
+
+	[Header("Tile Status")]
+	public TileState state;
+
+	[Header("Editor")]
+	public SpriteRenderer rend;
 
 	protected abstract void CalibratePosition();
 
-	public virtual void BeginSearch()
+	protected virtual void OnGUI()
 	{
-		hasSelected = false;
-		movementCost = Mathf.Infinity;
+		switch(state)
+		{
+			case TileState.Empty:
+				rend.color = Color.white;
+				break;
+			case TileState.Unchecked:
+				rend.color = Color.Lerp(Color.Lerp(Color.blue, Color.white, 0.25f), Color.white, 0.5f);
+				break;
+			case TileState.Checked:
+				rend.color = Color.Lerp(Color.Lerp(Color.red, Color.yellow, 0.5f), Color.white, 0.5f);
+				break;
+			case TileState.Path:
+				rend.color = Color.Lerp(Color.yellow, Color.white, 0.5f);
+				break;
+			case TileState.Origin:
+				rend.color = Color.green;
+				break;
+			case TileState.Destination:
+				rend.color = Color.red;
+				break;
+			case TileState.Obstacle:
+				rend.color = Color.gray;
+				break;
+		}
 	}
 }

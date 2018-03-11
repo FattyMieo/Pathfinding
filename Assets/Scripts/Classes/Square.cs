@@ -2,10 +2,18 @@
 {
 	private static Square[] directions =
 	{
-		new Square( 0, 1),
-		new Square( 1, 0),
-		new Square( 0,-1),
-		new Square(-1, 0)
+		new Square( 0, 1), new Square( 1, 1),
+		new Square( 1, 0), new Square( 1,-1),
+		new Square( 0,-1), new Square(-1,-1),
+		new Square(-1, 0), new Square(-1, 1)
+	};
+	
+	private static float[] cost =
+	{
+		1.0f, MathExtension.sqrt2,
+		1.0f, MathExtension.sqrt2,
+		1.0f, MathExtension.sqrt2,
+		1.0f, MathExtension.sqrt2
 	};
 
 	public static int totalDirections { get { return directions.Length; } }
@@ -18,12 +26,28 @@
 
 	public static Square GetDirection(int dir)
 	{
-		return directions [RoundToDir(dir)];
+		Square s = new Square();
+		s.x = directions [RoundToDir(dir)].x;
+		s.y = directions [RoundToDir(dir)].y;
+		return s;
 	}
 
 	public static Square[] GetDirections()
 	{
-		return directions;
+		Square[] s = new Square[totalDirections];
+		for(int i = 0; i < totalDirections; i++)
+		{
+			s[i] = new Square();
+			s[i].x = directions[i].x;
+			s[i].y = directions[i].y;
+		}
+		return s;
+	}
+
+	public static float GetCost(int dir)
+	{
+		float c = cost[RoundToDir(dir)];
+		return c;
 	}
 }
 
@@ -31,12 +55,20 @@ public static class NDiagonalSquare
 {
 	private static Square[] directions =
 	{
-		new Square( 0, 1), new Square( 1, 1),
-		new Square( 1, 0), new Square( 1,-1),
-		new Square( 0,-1), new Square(-1,-1),
-		new Square(-1, 0), new Square(-1, 1)
+		new Square( 0, 1),
+		new Square( 1, 0),
+		new Square( 0,-1),
+		new Square(-1, 0)
 	};
-
+	
+	private static float[] cost =
+	{
+		1.0f,
+		1.0f,
+		1.0f,
+		1.0f
+	};
+	
 	public static int totalDirections { get { return directions.Length; } }
 
 	public static int RoundToDir(int dir)
@@ -47,12 +79,28 @@ public static class NDiagonalSquare
 
 	public static Square GetDirection(int dir)
 	{
-		return directions [RoundToDir(dir)];
+		Square s = new Square();
+		s.x = directions [RoundToDir(dir)].x;
+		s.y = directions [RoundToDir(dir)].y;
+		return s;
 	}
 
 	public static Square[] GetDirections()
 	{
-		return directions;
+		Square[] s = new Square[totalDirections];
+		for(int i = 0; i < totalDirections; i++)
+		{
+			s[i] = new Square();
+			s[i].x = directions[i].x;
+			s[i].y = directions[i].y;
+		}
+		return s;
+	}
+
+	public static float GetCost(int dir)
+	{
+		float c = cost[RoundToDir(dir)];
+		return c;
 	}
 }
 
@@ -62,11 +110,12 @@ public class Square : Tile
 	//Getters
 	public bool isDiagonal
 	{
-		get { return BoardManager.instance.checkDiagonals; }
+		get { return PathfindingManager.instance.checkDiagonals; }
 	}
 
 	//Constructors
 	public Square(int x, int y) : base(x, y) { }
+	public Square() : base(0, 0) { }
 
 	//Functions
 	public override int totalDirections
@@ -87,6 +136,11 @@ public class Square : Tile
 	public Square[] GetDirections()
 	{
 		return (isDiagonal ? DiagonalSquare.GetDirections() : NDiagonalSquare.GetDirections());
+	}
+
+	public float GetCost(int dir)
+	{
+		return (isDiagonal ? DiagonalSquare.GetCost(dir) : NDiagonalSquare.GetCost(dir));
 	}
 
 	public Square GetNeighbour(int dir)
