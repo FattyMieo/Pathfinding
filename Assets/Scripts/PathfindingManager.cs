@@ -33,6 +33,7 @@ public class PathfindingManager : MonoBehaviour
 	[Header("Settings")]
 	public PathfindingAlgorithm algorithm;
 	public bool checkDiagonals;
+	public bool canCrossDiagonalGaps;
 	[Range(1, 10)]
 	public int weight = 1;
 
@@ -268,6 +269,14 @@ public class PathfindingManager : MonoBehaviour
 					if(neighbour == null) continue;
 					//Skip if neighbour is an obstacle
 					if(neighbour.isObstacle) continue;
+					//Skip if crossing diagonal gaps
+					if(checkDiagonals && !canCrossDiagonalGaps && i % 2 != 0)
+					{
+						TileScript prevNeighbour = BoardManager.instance.GetTile(s.GetNeighbour(i - 1).x, s.GetNeighbour(i - 1).y);
+						TileScript nextNeighbour = BoardManager.instance.GetTile(s.GetNeighbour(i + 1).x, s.GetNeighbour(i + 1).y);
+						if(prevNeighbour.isObstacle && nextNeighbour.isObstacle) //Do not cross diagonal gaps
+							continue;
+					}
 					//Skip if neighbour is checked
 					if(neighbour.isChecked) continue;
 
@@ -345,23 +354,23 @@ public class PathfindingManager : MonoBehaviour
 		List<TileScript> retraceList = new List<TileScript>();
 		List<Vector3> posList = new List<Vector3>();
 
-		posList.Add(destination.transform.position);
-
-		TileScript retraceTile = destination.parentTile;
+		TileScript retraceTile = destination;
 
 		while(retraceTile != null)
 		{
-			retraceTile.state = TileState.Path;
+			if(retraceTile.state != TileState.Origin && retraceTile.state != TileState.Destination) //Do not replace color for these tiles
+				retraceTile.state = TileState.Path;
+			
 			retraceList.Add(retraceTile);
 			posList.Add(retraceTile.transform.position);
-			retraceTile = retraceTile.parentTile;
 
-			if(retraceTile == origin)
-				break;
+			if(retraceTile == origin) break;
+
+			retraceTile = retraceTile.parentTile;
 		}
 
 		//Draw Retrace Line
-		if(posList.Count <= 1)
+		if(posList.Count <= 1) //No Solution
 		{
 			retraceLine.gameObject.SetActive(false);
 		}

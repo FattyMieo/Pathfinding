@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
 	public Slider weight;
 	public InputField weightText;
 	public Toggle diagonal;
+	public Toggle crossGaps;
 	public Slider speed;
 	public InputField speedText;
 
@@ -28,6 +29,7 @@ public class UIManager : MonoBehaviour
 	public Text startBtnText;
 	public Button stepBtn;
 	public Button stopBtn;
+	public Text stopBtnText;
 
 	[Header("Mouse")]
 	public bool isFilling;
@@ -56,6 +58,7 @@ public class UIManager : MonoBehaviour
 		weight.value 		= PathfindingManager.instance.weight;
 		weightText.text 	= weight.value.ToString();
 		diagonal.isOn 		= PathfindingManager.instance.checkDiagonals;
+		crossGaps.isOn		= PathfindingManager.instance.canCrossDiagonalGaps;
 		speed.value 		= 1.0f / PathfindingManager.instance.timeDelay;
 		speedText.text 		= speed.value.ToString("##.000");
 	}
@@ -74,10 +77,12 @@ public class UIManager : MonoBehaviour
 		weight		.interactable = !PathfindingManager.instance.isRunning;
 		weightText	.interactable = !PathfindingManager.instance.isRunning;
 		diagonal	.interactable = !PathfindingManager.instance.isRunning;
+		crossGaps	.interactable = !PathfindingManager.instance.isRunning;
 
 		weight		.gameObject.SetActive(PathfindingManager.instance.algorithm	 == PathfindingAlgorithm.AStar);
 		weightText	.gameObject.SetActive(PathfindingManager.instance.algorithm	 == PathfindingAlgorithm.AStar);
 		diagonal	.gameObject.SetActive(BoardManager.instance.tileType		 == TileType.Square);
+		crossGaps	.gameObject.SetActive(BoardManager.instance.tileType		 == TileType.Square && PathfindingManager.instance.checkDiagonals);
 
 		//Mouse
 		if(Input.GetMouseButtonUp(0))
@@ -94,6 +99,7 @@ public class UIManager : MonoBehaviour
 	void OnGUI()
 	{
 		startBtnText.text = (!PathfindingManager.instance.isRunning ? "Start Search" : (!PathfindingManager.instance.isPaused ? "Pause Search" : "Resume Search"));
+		stopBtnText.text = (PathfindingManager.instance.isRunning && PathfindingManager.instance.stage == PathfindingStage.EndPhase ? "Clear Search" : "Stop Search");
 	}
 
 	public void OnBoardTypeChange()
@@ -163,6 +169,12 @@ public class UIManager : MonoBehaviour
 	{
 		if(!PathfindingManager.instance.isRunning)
 			PathfindingManager.instance.checkDiagonals = diagonal.isOn;
+	}
+
+	public void OnCrossGapsToggle()
+	{
+		if(!PathfindingManager.instance.isRunning)
+			PathfindingManager.instance.canCrossDiagonalGaps = crossGaps.isOn;
 	}
 
 	public void OnSpeedChange(bool isText)

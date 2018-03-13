@@ -56,13 +56,6 @@ public abstract class TileScript : MonoBehaviour
 	{
 		get
 		{
-			if(state != TileState.Origin && state != TileState.Destination)
-			{
-				if(_isObstacle)
-					state = TileState.Obstacle;
-				else
-					state = TileState.Empty;
-			}
 			return _isObstacle; 
 		}
 		set

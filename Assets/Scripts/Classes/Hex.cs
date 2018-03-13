@@ -18,7 +18,7 @@ public static class AxialHex
 
 	public static int RoundToDir(int dir)
 	{
-		if (dir < 0) return totalDirections - (dir % totalDirections);
+		if (dir < 0) return totalDirections + (dir % totalDirections);
 		return dir % totalDirections;
 	}
 
