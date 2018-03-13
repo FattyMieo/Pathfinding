@@ -349,20 +349,28 @@ public class PathfindingManager : MonoBehaviour
 
 		TileScript retraceTile = destination.parentTile;
 
-		while(retraceTile != null && retraceTile != origin)
+		while(retraceTile != null)
 		{
 			retraceTile.state = TileState.Path;
 			retraceList.Add(retraceTile);
 			posList.Add(retraceTile.transform.position);
 			retraceTile = retraceTile.parentTile;
+
+			if(retraceTile == origin)
+				break;
 		}
 
-		posList.Add(origin.transform.position);
-
 		//Draw Retrace Line
-		retraceLine.positionCount = posList.Count;
-		retraceLine.SetPositions(posList.ToArray());
-		retraceLine.gameObject.SetActive(true);
+		if(posList.Count <= 1)
+		{
+			retraceLine.gameObject.SetActive(false);
+		}
+		else
+		{
+			retraceLine.positionCount = posList.Count;
+			retraceLine.SetPositions(posList.ToArray());
+			retraceLine.gameObject.SetActive(true);
+		}
 
 		//Go to next stage
 		stage = (PathfindingStage)((int)stage + 1);

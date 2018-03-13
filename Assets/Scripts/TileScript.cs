@@ -126,6 +126,7 @@ public abstract class TileScript : MonoBehaviour
 		{
 			if(UIManager.instance.isOrigin)
 			{
+				if(this.isObstacle) return;
 				UIManager.instance.lastTile.state = TileState.Empty;
 				this.state = TileState.Origin;
 				PathfindingManager.instance.origin = this;
@@ -133,6 +134,7 @@ public abstract class TileScript : MonoBehaviour
 			}
 			else if(UIManager.instance.isDestination)
 			{
+				if(this.isObstacle) return;
 				UIManager.instance.lastTile.state = TileState.Empty;
 				this.state = TileState.Destination;
 				PathfindingManager.instance.destination = this;
