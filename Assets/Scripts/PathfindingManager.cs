@@ -29,7 +29,10 @@ public class PathfindingManager : MonoBehaviour
 	public PathfindingStage stage;
 
 	[Header("Settings")]
+	public PathfindingAlgorithm algorithm;
 	public bool checkDiagonals;
+	[Range(1, 50)]
+	public int weight = 1;
 
 	[Header("Time")]
 	public float timeDelay = 0.5f;
@@ -39,7 +42,6 @@ public class PathfindingManager : MonoBehaviour
 	public LineRenderer retraceLine;
 
 	//Pathfinding
-	int originX, originY, destineX, destineY;
 	TileScript[,] tileBoard;
 	TileScript origin;
 	TileScript destination;
@@ -87,6 +89,12 @@ public class PathfindingManager : MonoBehaviour
 		}
 	}
 
+	[ContextMenu("Run Pathfinding")]
+	public void RunPathfinding()
+	{
+		PathfindingManager.instance.FindPath();
+	}
+
 	public void InitPoints()
 	{
 		if(BoardManager.instance.tileType == TileType.Square)
@@ -107,13 +115,26 @@ public class PathfindingManager : MonoBehaviour
 		}
 	}
 
-	public void FindDijkstraPath(int originX, int originY, int destineX, int destineY)
+	public void FindPath(int originX, int originY, int destineX, int destineY)
 	{
-		this.originX = originX;
-		this.originY = originY;
-		this.destineX = destineX;
-		this.destineY = destineY;
+		//Define origin & destination tiles
+		origin = BoardManager.instance.GetTile(originX, originY);
+		destination = BoardManager.instance.GetTile(destineX, destineY);
 
+		FindPath();
+	}
+
+	public void FindPath(TileScript origin, TileScript destination)
+	{
+		//Define origin & destination tiles
+		this.origin = origin;
+		this.destination = destination;
+
+		FindPath();
+	}
+
+	public void FindPath()
+	{
 		stage = PathfindingStage.Preparation;
 		isRunning = true;
 	}
@@ -138,10 +159,6 @@ public class PathfindingManager : MonoBehaviour
 				tileBoard[i, j].state = TileState.Empty;
 			}
 		}
-
-		//Define origin & destination tiles
-		origin = BoardManager.instance.GetTile(originX, originY);
-		destination = BoardManager.instance.GetTile(destineX, destineY);
 
 		//Set states
 		origin.state = TileState.Origin;
@@ -172,7 +189,33 @@ public class PathfindingManager : MonoBehaviour
 			//Find tile with smallest movement cost
 			for(int i = 1; i < openList.Count; i++)
 			{
-				if(openList[i].movementCost < currentTile.movementCost)
+				float newHeuristic = 0.0f;
+				float curHeuristic = 0.0f;
+
+				if(algorithm == PathfindingAlgorithm.AStar)
+				{
+					if(tileType == TileType.Square)
+					{
+						Square newSqr = ((SquareScript)openList[i]).position;
+						Square curSqr = ((SquareScript)currentTile).position;
+
+						newHeuristic = newSqr.GetHeuristic(destination.x, destination.y);
+						curHeuristic = curSqr.GetHeuristic(destination.x, destination.y);
+					}
+					else if(tileType == TileType.Hex)
+					{
+						Hex newHex = ((HexScript)openList[i]).position;
+						Hex curHex = ((HexScript)currentTile).position;
+
+						newHeuristic = newHex.GetHeuristic(destination.x, destination.y);
+						curHeuristic = curHex.GetHeuristic(destination.x, destination.y);
+					}
+
+					newHeuristic *= weight;
+					curHeuristic *= weight;
+				}
+
+				if(openList[i].movementCost + newHeuristic < currentTile.movementCost + curHeuristic)
 				{
 					currentTile = openList[i];
 				}
@@ -305,10 +348,5 @@ public class PathfindingManager : MonoBehaviour
 
 		//Go to next stage
 		isRunning = false;
-	}
-
-	public void FindDijkstraPath(TileScript origin, TileScript destination)
-	{
-		FindDijkstraPath(origin.x, origin.y, destination.x, destination.y);
 	}
 }

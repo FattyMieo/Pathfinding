@@ -1,4 +1,6 @@
-﻿public static class DiagonalSquare
+﻿using UnityEngine;
+
+public static class DiagonalSquare
 {
 	private static Square[] directions =
 	{
@@ -48,6 +50,14 @@
 	{
 		float c = cost[RoundToDir(dir)];
 		return c;
+	}
+
+	//Diagonal Heuristic
+	public static float GetHeuristic(Square current, Square goal)
+	{
+		int distX = Mathf.Abs(current.x - goal.x);
+		int distY = Mathf.Abs(current.y - goal.y);
+		return (distX >= distY ? distX : distY);
 	}
 }
 
@@ -102,6 +112,14 @@ public static class NDiagonalSquare
 		float c = cost[RoundToDir(dir)];
 		return c;
 	}
+
+	//Manhattan Heuristic
+	public static float GetHeuristic(Square current, Square goal)
+	{
+		int distX = Mathf.Abs(current.x - goal.x);
+		int distY = Mathf.Abs(current.y - goal.y);
+		return distX + distY;
+	}
 }
 
 [System.Serializable]
@@ -141,6 +159,17 @@ public class Square : Tile
 	public float GetCost(int dir)
 	{
 		return (isDiagonal ? DiagonalSquare.GetCost(dir) : NDiagonalSquare.GetCost(dir));
+	}
+
+	public float GetHeuristic(Square goal)
+	{
+		return (isDiagonal ? DiagonalSquare.GetHeuristic(this, goal) : NDiagonalSquare.GetHeuristic(this, goal));
+	}
+
+	public float GetHeuristic(int x, int y)
+	{
+		Square goal = new Square(x, y);
+		return GetHeuristic(goal);
 	}
 
 	public Square GetNeighbour(int dir)

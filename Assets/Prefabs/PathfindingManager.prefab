@@ -83,7 +83,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isRunning: 0
   stage: 0
+  algorithm: 0
   checkDiagonals: 0
+  weight: 1
   timeDelay: 0.01
   timePassed: 0
   retraceLine: {fileID: 120432011678430000}

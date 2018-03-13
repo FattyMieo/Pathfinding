@@ -1,4 +1,6 @@
-﻿public static class AxialHex
+﻿using UnityEngine;
+
+public static class AxialHex
 {
 	private static Hex[] directions =
 	{
@@ -45,6 +47,19 @@
 		float c = cost[RoundToDir(dir)];
 		return c;
 	}
+
+	public static float GetHeuristic(Hex current, Hex goal)
+	{
+		int distX = Mathf.Abs(current.x - goal.x);
+		int distY = Mathf.Abs(current.y - goal.y);
+
+		//x + y + z = 0
+		int current_z = current.x + current.y;
+		int goal_z = goal.x + goal.y;
+
+		int distZ = Mathf.Abs(current_z - goal_z);
+		return (distX + distY + distZ) / 2.0f;
+	}
 }
 
 [System.Serializable]
@@ -78,6 +93,17 @@ public class Hex : Tile
 	public float GetCost(int dir)
 	{
 		return AxialHex.GetCost(dir);
+	}
+
+	public float GetHeuristic(Hex goal)
+	{
+		return AxialHex.GetHeuristic(this, goal);
+	}
+
+	public float GetHeuristic(int x, int y)
+	{
+		Hex goal = new Hex(x, y);
+		return GetHeuristic(goal);
 	}
 
 	public Hex GetNeighbour(int dir)

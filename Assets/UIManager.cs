@@ -11,10 +11,6 @@ public class UIManager : MonoBehaviour
 		get { return _instance; }
 	}
 
-	[Header("Test only")]
-	public TileScript origin;
-	public TileScript destination;
-
 	//Listeners
 	void Awake()
 	{
@@ -35,11 +31,5 @@ public class UIManager : MonoBehaviour
 	void Update ()
 	{
 		
-	}
-
-	[ContextMenu("Run Dijkstra")]
-	public void RunDijkstra()
-	{
-		PathfindingManager.instance.FindDijkstraPath(origin, destination);
 	}
 }

@@ -85,6 +85,7 @@ public abstract class TileScript : MonoBehaviour
 
 	[Header("Editor")]
 	public SpriteRenderer rend;
+	public float h;
 
 	protected abstract void CalibratePosition();
 
