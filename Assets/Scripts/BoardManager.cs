@@ -41,6 +41,10 @@ public class BoardManager : MonoBehaviour
 			if(tileType == TileType.Hex) return Mathf.FloorToInt(_boardSize / 2.0f) + 1;
 			else return _boardSize;
 		}
+		set
+		{
+			_boardSize = value;
+		}
 	}
 
 	public TileScript[,] tileBoard
@@ -138,16 +142,12 @@ public class BoardManager : MonoBehaviour
 	void Start ()
 	{
 		UpdateBoard();
-		PathfindingManager.instance.InitPoints();
 	}
 
 	void Update ()
 	{
 		if(constantUpdateMode)
-		{
 			UpdateBoard();
-			PathfindingManager.instance.InitPoints();
-		}
 	}
 
 	//Functions
@@ -346,6 +346,10 @@ public class BoardManager : MonoBehaviour
 				squareBoardParent.gameObject.SetActive(false);
 				break;
 		}
+
+		PathfindingManager.instance.retraceLine.gameObject.SetActive(false);
+
+		PathfindingManager.instance.InitPoints();
 	}
 
 	public TileScript GetTile(int x, int y)

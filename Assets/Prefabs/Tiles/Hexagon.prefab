@@ -36,6 +36,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4689173461321088}
   - component: {fileID: 114208905293210626}
+  - component: {fileID: 60242363698918320}
   m_Layer: 0
   m_Name: Hexagon
   m_TagString: Untagged
@@ -100,6 +101,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &60242363698918320
+PolygonCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1399752147594594}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.25, y: 0.43333}
+      - {x: 0.25, y: 0.43333}
+      - {x: 0.5, y: 0}
+      - {x: 0.25, y: -0.43333}
+      - {x: -0.25, y: -0.43333}
+      - {x: -0.5, y: 0}
 --- !u!114 &114208905293210626
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -113,11 +144,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   x: 0
   y: 0
-  isChecked: 0
+  _isChecked: 0
+  _isObstacle: 0
   movementCost: 0
   parentTile: {fileID: 0}
   state: 0
   rend: {fileID: 212362555622192884}
+  h: 0
 --- !u!212 &212362555622192884
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -116,4 +116,54 @@ public abstract class TileScript : MonoBehaviour
 				break;
 		}
 	}
+
+	void OnMouseOver()
+	{
+		//Do not edit while pathfinding is in progress
+		if(PathfindingManager.instance.isRunning) return;
+
+		if(Input.GetMouseButton(0))
+		{
+			if(UIManager.instance.isOrigin)
+			{
+				UIManager.instance.lastTile.state = TileState.Empty;
+				this.state = TileState.Origin;
+				PathfindingManager.instance.origin = this;
+				UIManager.instance.lastTile = PathfindingManager.instance.origin;
+			}
+			else if(UIManager.instance.isDestination)
+			{
+				UIManager.instance.lastTile.state = TileState.Empty;
+				this.state = TileState.Destination;
+				PathfindingManager.instance.destination = this;
+				UIManager.instance.lastTile = PathfindingManager.instance.destination;
+			}
+			else if(UIManager.instance.isFilling)
+			{
+				isObstacle = true;
+			}
+			else if(UIManager.instance.isErasing)
+			{
+				isObstacle = false;
+			}
+			else
+			{
+				if(state == TileState.Origin)
+				{
+					UIManager.instance.isOrigin = true;
+					UIManager.instance.lastTile = this;
+				}
+				else if(state == TileState.Destination)
+				{
+					UIManager.instance.isDestination = true;
+					UIManager.instance.lastTile = this;
+				}
+				else
+				{
+					UIManager.instance.isFilling = !isObstacle;
+					UIManager.instance.isErasing = isObstacle;
+				}
+			}
+		}
+	}
 }

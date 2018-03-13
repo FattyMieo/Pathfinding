@@ -6,7 +6,8 @@ public enum PathfindingStage
 {
 	Preparation = 0,
 	SearchingOpenList,
-	RetracePath
+	RetracePath,
+	EndPhase
 }
 
 public enum PathfindingAlgorithm
@@ -26,16 +27,17 @@ public class PathfindingManager : MonoBehaviour
 
 	[Header("Status")]
 	public bool isRunning = false;
+	public bool isPaused = false;
 	public PathfindingStage stage;
 
 	[Header("Settings")]
 	public PathfindingAlgorithm algorithm;
 	public bool checkDiagonals;
-	[Range(1, 50)]
+	[Range(1, 10)]
 	public int weight = 1;
 
 	[Header("Time")]
-	public float timeDelay = 0.5f;
+	public float timeDelay = 0.01f;
 	public float timePassed = 0.0f;
 
 	[Header("Editor")]
@@ -43,8 +45,8 @@ public class PathfindingManager : MonoBehaviour
 
 	//Pathfinding
 	TileScript[,] tileBoard;
-	TileScript origin;
-	TileScript destination;
+	public TileScript origin;
+	public TileScript destination;
 	TileType tileType;
 	List<TileScript> openList;
 	List<TileScript> retraceList;
@@ -68,24 +70,33 @@ public class PathfindingManager : MonoBehaviour
 	{
 		if(isRunning)
 		{
-			timePassed += Time.deltaTime;
-			if(timePassed >= timeDelay)
+			if(!isPaused)
 			{
-				switch(stage)
+				timePassed += Time.deltaTime;
+				if(timePassed >= timeDelay)
 				{
-					case PathfindingStage.Preparation:
-						Preparation();
-						break;
-					case PathfindingStage.SearchingOpenList:
-						SearchingOpenList();
-						break;
-					case PathfindingStage.RetracePath:
-						RetracePath();
-						break;
+					Step();
+					timePassed = 0.0f;
 				}
-
-				timePassed = 0.0f;
 			}
+		}
+	}
+
+	public void Step()
+	{
+		switch(stage)
+		{
+			case PathfindingStage.Preparation:
+				Preparation();
+				break;
+			case PathfindingStage.SearchingOpenList:
+				SearchingOpenList();
+				break;
+			case PathfindingStage.RetracePath:
+				RetracePath();
+				break;
+			case PathfindingStage.EndPhase:
+				break;
 		}
 	}
 
@@ -137,14 +148,15 @@ public class PathfindingManager : MonoBehaviour
 	{
 		stage = PathfindingStage.Preparation;
 		isRunning = true;
+		isPaused = false;
 	}
 
-	void Preparation()
+	public void CleanBoard()
 	{
 		//Clear Retrace Line
 		retraceLine.gameObject.SetActive(false);
 
-		//Begin Search (Reset everything in the board)
+		//Reset everything in the board
 		tileBoard = BoardManager.instance.tileBoard;
 
 		for(int i = 0; i < tileBoard.GetLength(0); i++)
@@ -163,6 +175,12 @@ public class PathfindingManager : MonoBehaviour
 		//Set states
 		origin.state = TileState.Origin;
 		destination.state = TileState.Destination;
+	}
+
+	void Preparation()
+	{
+		//Clean Board
+		CleanBoard();
 
 		//Get used tile type
 		tileType = BoardManager.instance.tileType;
@@ -347,6 +365,6 @@ public class PathfindingManager : MonoBehaviour
 		retraceLine.gameObject.SetActive(true);
 
 		//Go to next stage
-		isRunning = false;
+		stage = (PathfindingStage)((int)stage + 1);
 	}
 }

@@ -115,7 +115,7 @@ MonoBehaviour:
   - {fileID: 1399752147594594, guid: b7e54c6db19e2c4449fc9c9841ac8135, type: 2}
   - {fileID: 1399752147594594, guid: 75b0f618b2bd0a24a984eb824eec9116, type: 2}
   tileType: 0
-  tileSize: 0.5
-  _boardSize: 20
+  tileSize: 0.25
+  _boardSize: 40
   squareBoardParent: {fileID: 4406773241288390}
   hexBoardParent: {fileID: 4104542732891168}
