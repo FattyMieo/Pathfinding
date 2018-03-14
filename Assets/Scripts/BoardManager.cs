@@ -331,7 +331,7 @@ public class BoardManager : MonoBehaviour
 		return;
 	}
 
-	public void UpdateBoard()
+	public void UpdateBoard(bool skipInitPoint = false)
 	{
 		CreateBoard(boardSize);
 
@@ -349,7 +349,8 @@ public class BoardManager : MonoBehaviour
 
 		PathfindingManager.instance.retraceLine.gameObject.SetActive(false);
 
-		PathfindingManager.instance.InitPoints();
+		if(!skipInitPoint)
+			PathfindingManager.instance.InitPoints();
 	}
 
 	public TileScript GetTile(int x, int y)

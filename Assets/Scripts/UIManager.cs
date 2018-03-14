@@ -68,7 +68,7 @@ public class UIManager : MonoBehaviour
 	{
 		startBtn	.interactable = !(PathfindingManager.instance.isRunning && PathfindingManager.instance.stage == PathfindingStage.EndPhase);
 		stepBtn		.interactable = PathfindingManager.instance.isRunning && PathfindingManager.instance.isPaused && PathfindingManager.instance.stage != PathfindingStage.EndPhase;
-		stopBtn		.interactable = PathfindingManager.instance.isRunning;
+		stopBtn		.interactable = true;
 
 		boardType	.interactable = !PathfindingManager.instance.isRunning;
 		size		.interactable = !PathfindingManager.instance.isRunning;
@@ -99,7 +99,7 @@ public class UIManager : MonoBehaviour
 	void OnGUI()
 	{
 		startBtnText.text = (!PathfindingManager.instance.isRunning ? "Start Search" : (!PathfindingManager.instance.isPaused ? "Pause Search" : "Resume Search"));
-		stopBtnText.text = (PathfindingManager.instance.isRunning && PathfindingManager.instance.stage == PathfindingStage.EndPhase ? "Clear Search" : "Stop Search");
+		stopBtnText.text = (PathfindingManager.instance.isRunning && PathfindingManager.instance.stage == PathfindingStage.EndPhase ? "Clear Search" : (!PathfindingManager.instance.isRunning ? "Clear Board" : "Stop Search"));
 	}
 
 	public void OnBoardTypeChange()
@@ -217,6 +217,13 @@ public class UIManager : MonoBehaviour
 		{
 			PathfindingManager.instance.isRunning = false;
 			PathfindingManager.instance.CleanBoard();
+		}
+		else
+		{
+			BoardManager.instance.UpdateBoard(true);
+
+			PathfindingManager.instance.origin.state = TileState.Origin;
+			PathfindingManager.instance.destination.state = TileState.Destination;
 		}
 	}
 }
