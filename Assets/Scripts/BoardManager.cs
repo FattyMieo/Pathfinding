@@ -32,7 +32,7 @@ public class BoardManager : MonoBehaviour
 	public TileType tileType;
 	[Range(0.0f, 3.0f)]
 	public float tileSize = 1.0f;
-	[Range(3, 45)]
+	[Range(3, 100)]
 	public int _boardSize = 20;
 	public int boardSize
 	{
